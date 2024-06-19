@@ -3,9 +3,9 @@ github-image-actions
 
 A collection of GitHub actions for processing images.
 
-# Actions
+## Actions
 
-## lint-asciidoc
+### lint-asciidoc
 
 Verifies that:
 
@@ -25,7 +25,7 @@ jobs:
         uses: gematik/github-image-actions/.github/actions/lint-asciidoc@...
 ```
 
-## lint-drawio
+### lint-drawio
 
 Verifies that:
 
@@ -44,7 +44,7 @@ jobs:
         uses: gematik/github-image-actions/.github/actions/lint-drawio@...
 ```
 
-## lint-plantuml
+### lint-plantuml
 
 Verifies that:
 
@@ -61,4 +61,19 @@ jobs:
 
       - name: Lint
         uses: gematik/github-image-actions/.github/actions/lint-plantuml@...
+```
+
+## Workflows
+
+### generate-images
+
+Exports PNGs and SVGs from `.drawio` and `.plantuml` files and commits them into the repository.
+
+```
+jobs:
+  generate:
+    uses: gematik/github-image-actions/.github/workflows/generate-images.yml@...
+    with:
+      srcdir: src/images
+      outdir: images/generated
 ```

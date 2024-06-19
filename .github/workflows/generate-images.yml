@@ -1,0 +1,138 @@
+name: Generate images
+
+on:
+  workflow_call:
+    inputs:
+      srcdir:
+        required: true
+        type: string
+      outdir:
+        required: true
+        type: string
+
+env:
+  DRAWIO_VERSION: 24.2.5
+  PLANTUML_VERSION: 1.2024.4
+
+jobs:
+  drawio:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Lint draw.io sources
+        uses: ./.github/actions/lint-drawio@2b70671f414528810d7d1e2236a73137ca2857a9
+
+      - name: Set up Xvfb & draw.io desktop
+        run: |
+            wget -q https://github.com/jgraph/drawio-desktop/releases/download/v${{ env.DRAWIO_VERSION }}/drawio-amd64-${{ env.DRAWIO_VERSION }}.deb
+            sudo apt-get update
+            sudo apt-get install --yes --no-install-recommends xvfb ./drawio-amd64-${{ env.DRAWIO_VERSION }}.deb
+
+      - name: Prepare output folder
+        run: |
+          rm -rf "${{ inputs.outdir }}"
+          mkdir -p "${{ inputs.outdir }}"
+
+      - name: Export draw.io files as png / svg
+        run: |
+          # draw.io desktop requires a running X server
+          export DISPLAY=:42
+          Xvfb :42 -nolisten unix &
+
+          for ext in png svg; do
+            # Nuke everything that's not a draw.io source file so that draw.io desktop doesn't waste time trying to use it as input
+            find "${{ inputs.srcdir }}" -not -name "*.drawio" -exec rm -v "{}" \;  
+
+            # The chromium args need to be specified last because of whatever
+            drawio --export --recursive --format $ext "${{ inputs.srcdir }}" --no-sandbox --disable-gpu --disable-dev-shm-usage
+
+            rsync -v --recursive --include="*.$ext" --filter="-! */" "${{ inputs.srcdir }}"/* "${{ inputs.outdir }}"
+          done
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: images-drawio
+          path: ${{ inputs.outdir }}/**
+
+  plantuml:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Lint PlantUML sources
+        uses: ./.github/actions/lint-plantuml@2b70671f414528810d7d1e2236a73137ca2857a9
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+          check-latest: true
+
+      - name: Set up Graphviz
+        run: |
+            sudo apt-get update
+            sudo apt-get install --yes --no-install-recommends graphviz
+
+      - name: Download PlantUML JAR
+        run: |
+          # Ironically, manually fetching the JAR is faster than installing the Debian plantuml package
+          wget -O plantuml.jar "https://github.com/plantuml/plantuml/releases/download/v${{ env.PLANTUML_VERSION }}/plantuml-${{ env.PLANTUML_VERSION }}.jar"
+
+      - name: Prepare output folder
+        run: |
+          rm -rf "${{ inputs.outdir }}"
+          mkdir -p "${{ inputs.outdir }}"
+
+      - name: Export PlantUML files as png / svg
+        run: |
+          for ext in png svg; do
+            java -jar plantuml.jar -t$ext -v -nometadata -failfast2 -nbthread auto -o "." "${{ inputs.srcdir }}/**.puml"
+            rsync -v --recursive --include="*.$ext" --filter="-! */" "${{ inputs.srcdir }}"/* "${{ inputs.outdir }}"
+          done
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: images-plantuml
+          path: ${{ inputs.outdir }}/**
+
+  commit:
+    needs: [drawio, plantuml]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Prepare output folder
+        run: |
+          rm -rf "${{ inputs.outdir }}"
+          mkdir -p "${{ inputs.outdir }}"
+
+      - name: Download draw.io artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: images-drawio
+          path: ${{ inputs.outdir }}
+
+      - name: Download PlantUML artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: images-plantuml
+          path: ${{ inputs.outdir }}
+
+      - name: Lint AsciiDoc
+        uses: ./.github/actions/lint-asciidoc@2b70671f414528810d7d1e2236a73137ca2857a9
+
+      - name: Add & Commit
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: ${{ inputs.outdir }}
+          pull: --rebase --autostash
