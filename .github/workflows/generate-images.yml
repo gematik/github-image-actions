@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Lint draw.io sources
-        uses: ./.github/actions/lint-drawio
+        uses: gematik/github-image-actions/.github/actions/lint-drawio
 
       - name: Set up Xvfb & draw.io desktop
         run: |
@@ -66,7 +66,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Lint PlantUML sources
-        uses: ./.github/actions/lint-plantuml
+        uses: gematik/github-image-actions/.github/actions/lint-plantuml
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -129,7 +129,7 @@ jobs:
           path: ${{ inputs.outdir }}
 
       - name: Lint AsciiDoc
-        uses: ./.github/actions/lint-asciidoc
+        uses: gematik/github-image-actions/.github/actions/lint-asciidoc
 
       - name: Add & Commit
         uses: EndBug/add-and-commit@v9
