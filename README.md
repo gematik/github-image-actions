@@ -12,7 +12,7 @@ Verifies that:
 - `.adoc` files don't contain image macros that reference dead links or non-existing files
 - `.adoc` files don't contain `<img>` tags (because the action cannot verify them as easily)
 
-```
+```yaml
 jobs:
   lint
     runs-on: ubuntu-latest
@@ -31,7 +31,7 @@ Verifies that:
 
 - `.drawio` files don't contain more than a single diagram (because bulk-exporting multiple pages isn't supported)
 
-```
+```yaml
 jobs:
   lint
     runs-on: ubuntu-latest
@@ -50,7 +50,7 @@ Verifies that:
 
 - `.puml` files don't contain inline file names (because these override the output file name specified during exporting)
 
-```
+```yaml
 jobs:
   lint
     runs-on: ubuntu-latest
@@ -69,7 +69,7 @@ jobs:
 
 Exports PNGs and SVGs from `.drawio` and `.plantuml` files and commits them into the repository.
 
-```
+```yaml
 jobs:
   generate:
     uses: gematik/github-image-actions/.github/workflows/generate-images.yml@...
@@ -79,7 +79,7 @@ jobs:
       ref: ...
 ```
 
-```
+```yaml
 inputs:
   srcdir:
     required: true
