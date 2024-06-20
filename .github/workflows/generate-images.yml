@@ -32,8 +32,22 @@ jobs:
           ref: ${{ inputs.ref }}
           path: github-image-actions
 
+      - name: Debug
+        run: |
+            pwd
+            ls
+
       - name: Check out calling repository
         uses: actions/checkout@v4
+
+      - name: Debug
+        run: |
+            pwd
+            ls
+            echo
+            ls ..
+            echo
+            ls ../..
 
       - name: Lint draw.io sources
         uses: ./../github-image-actions/.github/actions/lint-drawio
