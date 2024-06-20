@@ -75,8 +75,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out repository
+      - name: Check out calling repository
         uses: actions/checkout@v4
+
+      - name: Check out workflow repository
+        uses: actions/checkout@v4
+        with:
+          repository: gematik/github-image-actions
+          ref: ${{ inputs.ref }}
+          path: github-image-actions
 
       - name: Lint PlantUML sources
         uses: ./github-image-actions/.github/actions/lint-plantuml
@@ -121,8 +128,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out repository
+      - name: Check out calling repository
         uses: actions/checkout@v4
+
+      - name: Check out workflow repository
+        uses: actions/checkout@v4
+        with:
+          repository: gematik/github-image-actions
+          ref: ${{ inputs.ref }}
+          path: github-image-actions
 
       - name: Prepare output folder
         run: |
