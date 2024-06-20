@@ -38,7 +38,7 @@ jobs:
       - name: Debug
         run: |
           ls .
-          tree ./github-image-actions
+          tree ..
 
       - name: Lint draw.io sources
         uses: ./github-image-actions/.github/actions/lint-drawio
