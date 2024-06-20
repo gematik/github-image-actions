@@ -35,6 +35,11 @@ jobs:
       - name: Check out calling repository
         uses: actions/checkout@v4
 
+      - name: Debug
+        run: |
+          ls .
+          tree ./github-image-actions
+
       - name: Lint draw.io sources
         uses: ./github-image-actions/.github/actions/lint-drawio
 
