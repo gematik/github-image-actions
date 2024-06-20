@@ -76,4 +76,21 @@ jobs:
     with:
       srcdir: src/images
       outdir: images/generated
+      ref: ...
+```
+
+```
+inputs:
+  srcdir:
+    required: true
+    type: string
+    description: Relative path to the directory in which to search for .drawio and .puml source files
+  outdir:
+    required: true
+    type: string
+    description: Relative path to the directory in which to write the .png and .svg output files
+  ref:
+    required: true
+    type: string
+    description: The GitHub ref to use for local actions (should normally be the same ref that this workflow is called on)
 ```
