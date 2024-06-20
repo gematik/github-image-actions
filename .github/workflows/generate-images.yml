@@ -11,6 +11,10 @@ on:
         required: true
         type: string
         description: Relative path to the directory in which to write the .png and .svg output files
+      ref:
+        required: true
+        type: string
+        description: The GitHub ref to use for local actions (should normally be the same ref that this workflow is called on)
 
 env:
   DRAWIO_VERSION: 24.2.5
@@ -25,7 +29,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: gematik/github-image-actions
-          ref: ${{ github.workflow_sha }}
+          ref: ${{ inputs.ref }}
           path: github-image-actions
 
       - name: Check out calling repository
