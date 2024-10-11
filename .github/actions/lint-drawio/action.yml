@@ -13,6 +13,7 @@
 # limitations under the License.
 
 name: Lint draw.io
+description: Validate draw.io images
 
 runs:
   using: "composite"

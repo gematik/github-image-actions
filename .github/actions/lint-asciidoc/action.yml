@@ -13,6 +13,7 @@
 # limitations under the License.
 
 name: Lint AsciiDoc
+description: Validate image references inside AsciiDoc files
 
 runs:
   using: "composite"
