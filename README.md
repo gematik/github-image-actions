@@ -1,3 +1,5 @@
+<img align="right" width="250" height="47" src="gematik.png"/>
+
 github-image-actions
 ====================
 
