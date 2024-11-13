@@ -90,11 +90,11 @@ jobs:
             rsync -v --recursive --include="*.$1" --filter="-! */" "${{ inputs.srcdir }}"/* "${{ inputs.outdir }}"
           }
 
-          if fromJSON(${{ inputs.png }}; then
+          if [[ "${{ inputs.png }}" == "true" ]] ; then
             generate png
           fi
 
-          if fromJSON(${{ inputs.svg }}; then
+          if [[ "${{ inputs.svg }}" == "true" ]] ; then
             generate svg
           fi
 
@@ -150,11 +150,11 @@ jobs:
             rsync -v --recursive --include="*.$1" --filter="-! */" "${{ inputs.srcdir }}"/* "${{ inputs.outdir }}"
           }
 
-          if fromJSON(${{ inputs.png }}; then
+          if [[ "${{ inputs.png }}" == "true" ]] ; then
             generate png
           fi
 
-          if fromJSON(${{ inputs.svg }}; then
+          if [[ "${{ inputs.svg }}" == "true" ]] ; then
             generate svg
           fi
 
