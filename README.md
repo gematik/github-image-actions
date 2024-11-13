@@ -90,11 +90,21 @@ inputs:
   outdir:
     required: true
     type: string
-    description: Relative path to the directory in which to write the .png and .svg output files
+    description: Relative path to the directory in which to write the generated output files
   ref:
     required: true
     type: string
     description: The GitHub ref to use for local actions (should normally be the same ref that this workflow is called on)
+  png:
+    required: false
+    default: true
+    type: boolean
+    description: Whether to generate PNG images from the source files
+  svg:
+    required: false
+    default: true
+    type: boolean
+    description: Whether to generate SVG images from the source files
 ```
 
 ## License

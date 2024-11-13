@@ -24,11 +24,22 @@ on:
       outdir:
         required: true
         type: string
-        description: Relative path to the directory in which to write the .png and .svg output files
+        description: Relative path to the directory in which to write the generated output files
       ref:
         required: true
         type: string
         description: The GitHub ref to use for local actions (should normally be the same ref that this workflow is called on)
+      png:
+        required: false
+        default: true
+        type: boolean
+        description: Whether to generate PNG images from the source files
+      svg:
+        required: false
+        default: true
+        type: boolean
+        description: Whether to generate SVG images from the source files
+      
 
 env:
   DRAWIO_VERSION: 24.2.5
@@ -63,21 +74,29 @@ jobs:
           rm -rf "${{ inputs.outdir }}"
           mkdir -p "${{ inputs.outdir }}"
 
-      - name: Export draw.io files as png / svg
+      - name: Export draw.io files
         run: |
           # draw.io desktop requires a running X server
           export DISPLAY=:42
           Xvfb :42 -nolisten unix &
 
-          for ext in png svg; do
+          function generate {
             # Nuke everything that's not a draw.io source file so that draw.io desktop doesn't waste time trying to use it as input
             find "${{ inputs.srcdir }}" -not -name "*.drawio" -exec rm -v "{}" \;  
 
             # The chromium args need to be specified last because of whatever
-            drawio --export --recursive --format $ext "${{ inputs.srcdir }}" --no-sandbox --disable-gpu --disable-dev-shm-usage
+            drawio --export --recursive --format $1 "${{ inputs.srcdir }}" --no-sandbox --disable-gpu --disable-dev-shm-usage
 
-            rsync -v --recursive --include="*.$ext" --filter="-! */" "${{ inputs.srcdir }}"/* "${{ inputs.outdir }}"
-          done
+            rsync -v --recursive --include="*.$1" --filter="-! */" "${{ inputs.srcdir }}"/* "${{ inputs.outdir }}"
+          }
+
+          if fromJSON(${{ inputs.png }}; then
+            generate png
+          fi
+
+          if fromJSON(${{ inputs.svg }}; then
+            generate svg
+          fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -124,12 +143,20 @@ jobs:
           rm -rf "${{ inputs.outdir }}"
           mkdir -p "${{ inputs.outdir }}"
 
-      - name: Export PlantUML files as png / svg
+      - name: Export PlantUML files
         run: |
-          for ext in png svg; do
-            java -jar plantuml.jar -t$ext -v -nometadata -failfast2 -nbthread auto -o "." "${{ inputs.srcdir }}/**.puml"
-            rsync -v --recursive --include="*.$ext" --filter="-! */" "${{ inputs.srcdir }}"/* "${{ inputs.outdir }}"
-          done
+          function generate {
+            java -jar plantuml.jar -t$1 -v -nometadata -failfast2 -nbthread auto -o "." "${{ inputs.srcdir }}/**.puml"
+            rsync -v --recursive --include="*.$1" --filter="-! */" "${{ inputs.srcdir }}"/* "${{ inputs.outdir }}"
+          }
+
+          if fromJSON(${{ inputs.png }}; then
+            generate png
+          fi
+
+          if fromJSON(${{ inputs.svg }}; then
+            generate svg
+          fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
