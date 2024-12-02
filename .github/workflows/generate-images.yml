@@ -74,6 +74,9 @@ jobs:
           rm -rf "${{ inputs.outdir }}"
           mkdir -p "${{ inputs.outdir }}"
 
+          # Add empty file to ensure the artifact gets uploaded even without output files
+          touch "${{ inputs.outdir }}/.keep"
+
       - name: Export draw.io files
         run: |
           # Exit early if there are no source files
@@ -145,6 +148,9 @@ jobs:
           rm -rf "${{ inputs.outdir }}"
           mkdir -p "${{ inputs.outdir }}"
 
+          # Add empty file to ensure the artifact gets uploaded even without output files
+          touch "${{ inputs.outdir }}/.keep"
+
       - name: Export PlantUML files
         run: |
           # Exit early if there are no source files
@@ -215,5 +221,5 @@ jobs:
       - name: Add & Commit
         uses: EndBug/add-and-commit@v9
         with:
-          add: ${{ inputs.outdir }}
+          add: '[ ${{ inputs.outdir }}/**/*.png, ${{ inputs.outdir }}/**/*.svg ]'
           pull: --rebase --autostash
