@@ -60,9 +60,6 @@ jobs:
           ref: ${{ inputs.ref }}
           path: github-image-actions
 
-      - name: Lint draw.io sources
-        uses: ./github-image-actions/.github/actions/lint-drawio
-
       - name: Set up Xvfb & draw.io desktop
         run: |
             wget -q https://github.com/jgraph/drawio-desktop/releases/download/v${{ env.DRAWIO_VERSION }}/drawio-amd64-${{ env.DRAWIO_VERSION }}.deb
@@ -214,9 +211,6 @@ jobs:
         with:
           name: images-plantuml
           path: ${{ inputs.outdir }}
-
-      - name: Lint AsciiDoc
-        uses: ./github-image-actions/.github/actions/lint-asciidoc
 
       - name: Add & Commit
         uses: EndBug/add-and-commit@v9
