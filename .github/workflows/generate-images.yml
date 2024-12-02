@@ -75,7 +75,7 @@ jobs:
           mkdir -p "${{ inputs.outdir }}"
 
           # Add empty file to ensure the artifact gets uploaded even without output files
-          touch "${{ inputs.outdir }}/.keep"
+          touch "${{ inputs.outdir }}/keep.empty"
 
       - name: Export draw.io files
         run: |
@@ -149,7 +149,7 @@ jobs:
           mkdir -p "${{ inputs.outdir }}"
 
           # Add empty file to ensure the artifact gets uploaded even without output files
-          touch "${{ inputs.outdir }}/.keep"
+          touch "${{ inputs.outdir }}/keep.empty"
 
       - name: Export PlantUML files
         run: |
