@@ -76,6 +76,11 @@ jobs:
 
       - name: Export draw.io files
         run: |
+          # Exit early if there are no source files
+          if ! find "${{ inputs.srcdir }}" -name "*.drawio" | read; then
+            exit 0
+          fi
+
           # draw.io desktop requires a running X server
           export DISPLAY=:42
           Xvfb :42 -nolisten unix &
@@ -145,6 +150,11 @@ jobs:
 
       - name: Export PlantUML files
         run: |
+          # Exit early if there are no source files
+          if ! find "${{ inputs.srcdir }}" -name "*.puml" | read; then
+            exit 0
+          fi
+
           function generate {
             java -jar plantuml.jar -t$1 -v -nometadata -failfast2 -nbthread auto -o "." "${{ inputs.srcdir }}/**.puml"
             rsync -v --recursive --include="*.$1" --filter="-! */" "${{ inputs.srcdir }}"/* "${{ inputs.outdir }}"
