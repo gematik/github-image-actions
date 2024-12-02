@@ -123,9 +123,6 @@ jobs:
           ref: ${{ inputs.ref }}
           path: github-image-actions
 
-      - name: Lint PlantUML sources
-        uses: ./github-image-actions/.github/actions/lint-plantuml
-
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
@@ -154,6 +151,12 @@ jobs:
           if ! find "${{ inputs.srcdir }}" -name "*.puml" | read; then
             exit 0
           fi
+
+          # Strip any output filenames from source files
+          while read -r file; do
+            sed -e 's/@startuml.*/@startuml/' "$file" > "$file.stripped"
+            mv "$file.stripped" "$file"
+          done < <(find "${{ inputs.srcdir }}" -name "*.puml")
 
           function generate {
             java -jar plantuml.jar -t$1 -v -nometadata -failfast2 -nbthread auto -o "." "${{ inputs.srcdir }}/**.puml"
