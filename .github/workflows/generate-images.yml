@@ -60,9 +60,6 @@ jobs:
           ref: ${{ inputs.ref }}
           path: github-image-actions
 
-      - name: Lint draw.io sources
-        uses: ./github-image-actions/.github/actions/lint-drawio
-
       - name: Set up Xvfb & draw.io desktop
         run: |
             wget -q https://github.com/jgraph/drawio-desktop/releases/download/v${{ env.DRAWIO_VERSION }}/drawio-amd64-${{ env.DRAWIO_VERSION }}.deb
@@ -74,8 +71,16 @@ jobs:
           rm -rf "${{ inputs.outdir }}"
           mkdir -p "${{ inputs.outdir }}"
 
+          # Add empty file to ensure the artifact gets uploaded even without output files
+          touch "${{ inputs.outdir }}/keep.empty"
+
       - name: Export draw.io files
         run: |
+          # Exit early if there are no source files
+          if ! find "${{ inputs.srcdir }}" -name "*.drawio" | read; then
+            exit 0
+          fi
+
           # draw.io desktop requires a running X server
           export DISPLAY=:42
           Xvfb :42 -nolisten unix &
@@ -118,9 +123,6 @@ jobs:
           ref: ${{ inputs.ref }}
           path: github-image-actions
 
-      - name: Lint PlantUML sources
-        uses: ./github-image-actions/.github/actions/lint-plantuml
-
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
@@ -143,8 +145,22 @@ jobs:
           rm -rf "${{ inputs.outdir }}"
           mkdir -p "${{ inputs.outdir }}"
 
+          # Add empty file to ensure the artifact gets uploaded even without output files
+          touch "${{ inputs.outdir }}/keep.empty"
+
       - name: Export PlantUML files
         run: |
+          # Exit early if there are no source files
+          if ! find "${{ inputs.srcdir }}" -name "*.puml" | read; then
+            exit 0
+          fi
+
+          # Strip any output filenames from source files
+          while read -r file; do
+            sed -e 's/@startuml.*/@startuml/' "$file" > "$file.stripped"
+            mv "$file.stripped" "$file"
+          done < <(find "${{ inputs.srcdir }}" -name "*.puml")
+
           function generate {
             java -jar plantuml.jar -t$1 -v -nometadata -failfast2 -nbthread auto -o "." "${{ inputs.srcdir }}/**.puml"
             rsync -v --recursive --include="*.$1" --filter="-! */" "${{ inputs.srcdir }}"/* "${{ inputs.outdir }}"
@@ -196,8 +212,9 @@ jobs:
           name: images-plantuml
           path: ${{ inputs.outdir }}
 
-      - name: Lint AsciiDoc
-        uses: ./github-image-actions/.github/actions/lint-asciidoc
+      - name: Nuke empty file
+        run: |
+          rm -rvf "${{ inputs.outdir }}/keep.empty"
 
       - name: Add & Commit
         uses: EndBug/add-and-commit@v9

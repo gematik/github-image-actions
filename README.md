@@ -46,25 +46,6 @@ jobs:
         uses: gematik/github-image-actions/.github/actions/lint-drawio@...
 ```
 
-### lint-plantuml
-
-Verifies that:
-
-- `.puml` files don't contain inline file names (because these override the output file name specified during exporting)
-
-```yaml
-jobs:
-  lint
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Lint
-        uses: gematik/github-image-actions/.github/actions/lint-plantuml@...
-```
-
 ## Workflows
 
 ### generate-images
